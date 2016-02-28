@@ -32,7 +32,7 @@ public class TransLink {
     private String requestURL = "http://api.translink.ca/rttiapi/v1/";
 
     private ArrayList<JSONObject> nearestStops =  new ArrayList<JSONObject>();
-
+    public ArrayList<BusStop> stopsToDisplay = new ArrayList<BusStop>();
 
     public TransLink()
     {
@@ -89,14 +89,14 @@ public class TransLink {
     private void findClosestStopFromJSON(JSONArray jsonStopList)
     {
         try {
-            int minDistance = Integer.parseInt(jsonStopList.getJSONObject(0).get("Distance").toString());
+            String minDistance = jsonStopList.getJSONObject(0).get("Distance").toString();
             int counter = 1;
 
             // Adds the closest stop to the list - first stop in the jsonStopList
             nearestStops.add(jsonStopList.getJSONObject(0));
 
             // Adds all the stops with the same distance to the list ---> jsonStopList is ordered by distance from current location
-           while (minDistance == Integer.parseInt(jsonStopList.getJSONObject(counter).get("Distance").toString()))
+           while (minDistance == jsonStopList.getJSONObject(counter).get("Distance").toString())
            {
                nearestStops.add(jsonStopList.getJSONObject(counter));
                counter++;
@@ -114,9 +114,29 @@ public class TransLink {
 
     private void extractInfoFromNearestStops()
     {
-        
+        String name;
+        String number;
 
+        try {
+            for (int i = 0; i < this.nearestStops.size(); i++) {
+                name = this.nearestStops.get(i).getString("Name");
+                number = this.nearestStops.get(i).getString("StopNo");
+
+            }
+        }
+        catch (JSONException je)
+        {
+            System.out.println(je.getMessage());
+        }
     }
 
+
+
+    private String getData(URL url)
+    {
+
+
+        return "";
+    }
 
 }
