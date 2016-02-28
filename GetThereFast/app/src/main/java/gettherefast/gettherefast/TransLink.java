@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+
 import javax.ws.rs.core.Response;
 /**
  * Created by Noa on 16-02-27.
@@ -28,6 +30,9 @@ public class TransLink {
     private URLConnection connectionURL;
     private BufferedReader responseBuffer;
     private String requestURL = "http://api.translink.ca/rttiapi/v1/";
+
+    private ArrayList<JSONObject> nearestStops =  new ArrayList<JSONObject>();
+
 
     public TransLink()
     {
@@ -62,7 +67,6 @@ public class TransLink {
             this.responseBuffer.close();
 
             JSONArray jsonStopList = new JSONArray(input);
-
             findClosestStopFromJSON(jsonStopList);
         }
         catch (MalformedURLException e)
@@ -71,7 +75,7 @@ public class TransLink {
         }
         catch (IOException e)
         {
-            System.out.println("Failed to connect to TransLink - " + e.getMessage());
+            System.out.println("Failed to connect to TransLink 2 - " + e.getMessage());
         }
         catch (JSONException je)
         {
@@ -82,20 +86,37 @@ public class TransLink {
     }
 
 
-
     private void findClosestStopFromJSON(JSONArray jsonStopList)
     {
         try {
+            int minDistance = Integer.parseInt(jsonStopList.getJSONObject(0).get("Distance").toString());
+            int counter = 1;
 
-            System.out.println(jsonStopList.get(0).toString());
+            // Adds the closest stop to the list - first stop in the jsonStopList
+            nearestStops.add(jsonStopList.getJSONObject(0));
+
+            // Adds all the stops with the same distance to the list ---> jsonStopList is ordered by distance from current location
+           while (minDistance == Integer.parseInt(jsonStopList.getJSONObject(counter).get("Distance").toString()))
+           {
+               nearestStops.add(jsonStopList.getJSONObject(counter));
+               counter++;
+           }
+
+            extractInfoFromNearestStops();
         }
         catch (JSONException je)
         {
             System.out.println(je.getMessage());
         }
+
     }
 
 
+    private void extractInfoFromNearestStops()
+    {
+        
+
+    }
 
 
 }
