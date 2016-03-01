@@ -18,4 +18,10 @@ public class BusStop {
         this.busDepartures.put(busNum, busTime);
     }
 
+    public BusStop()
+    {
+        this.stopNumber = "";
+        this.stopName = "";
+    }
+
 }

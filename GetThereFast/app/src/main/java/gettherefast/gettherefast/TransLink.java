@@ -1,7 +1,5 @@
 package gettherefast.gettherefast;
 
-import android.os.Trace;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,11 +12,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import javax.ws.rs.core.Response;
 /**
  * Created by Noa on 16-02-27.
  */
-public class TransLink {
+public class TransLink extends RequestHandler{
 
     private final String apiKey = "efRc4ohQgIEpfLHXeLWK"; // API key from TransLink Open API
 
@@ -26,10 +23,8 @@ public class TransLink {
     // URL related fields
     // =================
 
-    private URL transLinkURL;
-    private URLConnection connectionURL;
-    private BufferedReader responseBuffer;
-    private String requestURL = "http://api.translink.ca/rttiapi/v1/";
+
+    private String baseRequestURL = "http://api.translink.ca/rttiapi/v1/";
 
     private ArrayList<JSONObject> nearestStops =  new ArrayList<JSONObject>();
     public ArrayList<BusStop> stopsToDisplay = new ArrayList<BusStop>();
@@ -49,22 +44,10 @@ public class TransLink {
         // HTTP Request
         // ================
 
-        this.requestURL += "stops?apikey=" + this.apiKey + "&lat=" + lat +"&long=" + lon;
-
         try
         {
-            this.transLinkURL = new URL (this.requestURL);
-            this.connectionURL = this.transLinkURL.openConnection();
-            this.connectionURL.setRequestProperty("content-type", "application/JSON");
-            this.responseBuffer = new BufferedReader(new InputStreamReader(this.connectionURL.getInputStream()));
-
-            String input = "";
-            String inputLine = "";
-
-            while ((inputLine = this.responseBuffer.readLine()) != null)
-                input += inputLine;
-
-            this.responseBuffer.close();
+            String url =  this.baseRequestURL + "stops?apikey=" + this.apiKey + "&lat=" + lat +"&long=" + lon;
+            String input = this.getData(url);
 
             JSONArray jsonStopList = new JSONArray(input);
             findClosestStopFromJSON(jsonStopList);
@@ -114,14 +97,16 @@ public class TransLink {
 
     private void extractInfoFromNearestStops()
     {
-        String name;
-        String number;
+        BusStop toAdd = new BusStop();
 
         try {
             for (int i = 0; i < this.nearestStops.size(); i++) {
-                name = this.nearestStops.get(i).getString("Name");
-                number = this.nearestStops.get(i).getString("StopNo");
+                toAdd.stopName = this.nearestStops.get(i).getString("Name");
+                toAdd.stopNumber = this.nearestStops.get(i).getString("StopNo");
 
+                // get bus numbers and schedule -- check elements of current response
+
+                this.stopsToDisplay.add(toAdd);
             }
         }
         catch (JSONException je)
@@ -129,14 +114,4 @@ public class TransLink {
             System.out.println(je.getMessage());
         }
     }
-
-
-
-    private String getData(URL url)
-    {
-
-
-        return "";
-    }
-
 }
